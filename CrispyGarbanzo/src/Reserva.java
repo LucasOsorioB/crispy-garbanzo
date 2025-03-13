@@ -41,4 +41,45 @@ class Reserva {
         System.out.println("Reserva realizada com sucesso!");
         return reserva;
     }
+
+    // Getters e Setters
+    public Propriedade getPropriedade() {
+        return propriedade;
+    }
+
+    public void setPropriedade(Propriedade propriedade) {
+        this.propriedade = propriedade;
+    }
+
+    public Locatario getLocatario() {
+        return locatario;
+    }
+
+    public void setLocatario(Locatario locatario) {
+        this.locatario = locatario;
+    }
+
+    public LocalDate getCheckIn() {
+        return checkIn;
+    }
+
+    public void setCheckIn(LocalDate checkIn) {
+        this.checkIn = checkIn;
+    }
+
+    public LocalDate getCheckOut() {
+        return checkOut;
+    }
+
+    public void setCheckOut(LocalDate checkOut) {
+        this.checkOut = checkOut;
+    }
+
+    public double getCustoTotal() {
+        return custoTotal;
+    }
+
+    public void setCustoTotal(double custoTotal) {
+        this.custoTotal = custoTotal;
+    }
 }
