@@ -66,7 +66,7 @@ A visualização `JAVA PROJECTS` permite gerenciar suas dependências. Mais deta
 
 Aqui está um diagrama de classes simplificado para exemplificar o esquema do aplicativo:
 
-![Diagrama de Classes](attachment:image.png)
+![Diagrama de Classes](img/image.png)
 
 ## Contribuição
 
