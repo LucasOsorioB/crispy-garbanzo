@@ -16,14 +16,14 @@ public class App {
         this.propriedades = new ArrayList<>();
         this.reservas = new ArrayList<>();
 
-        // Adicionando proprietários e locatários iniciais
+        // Adicionando proprietários locatários
         Proprietario proprietario1 = new Proprietario("Carlos", "carlos@email.com", "senha123", 5);
         Locatario locatario1 = new Locatario("Ana", "ana@email.com", "segredo", "123.456.789-00");
 
         this.proprietarios.add(proprietario1);
         this.locatarios.add(locatario1);
 
-        // Adicionando propriedades iniciais
+        // Adicionandopropriedades
         Propriedade propriedade1 = new Propriedade(true, "Apartamento no Centro",
             "Apartamento aconchegante com vista para a cidade.",
             "São Paulo, SP", 4, 250.00, proprietario1);
@@ -64,7 +64,7 @@ public class App {
         int capacidade = scanner.nextInt();
         System.out.print("Preço por noite: ");
         double precoPorNoite = scanner.nextDouble();
-        scanner.nextLine(); // Consumir a nova linha
+        scanner.nextLine();
 
         // Supondo que o primeiro proprietário seja o dono da nova propriedade
         Proprietario proprietario = proprietarios.get(0);
@@ -84,7 +84,7 @@ public class App {
             System.out.println("3. Sair");
             System.out.print("Escolha uma opção: ");
             opcao = scanner.nextInt();
-            scanner.nextLine(); // Consumir a nova linha
+            scanner.nextLine(); 
 
             switch (opcao) {
                 case 1:
