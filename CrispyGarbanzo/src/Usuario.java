@@ -1,4 +1,6 @@
-class Usuario {
+import java.util.ArrayList;
+
+public abstract class Usuario {
     protected String nome;
     protected String email;
     protected String senha;
@@ -9,10 +11,7 @@ class Usuario {
         this.senha = senha;
     }
 
-    public void imprimirDados() {
-        System.out.println("Nome: " + nome);
-        System.out.println("Email: " + email);
-    }
+    public abstract void imprimirDados();
 
     // Getters e Setters
     public String getNome() {
@@ -41,49 +40,51 @@ class Usuario {
 }
 
 class Proprietario extends Usuario {
-    private int numeroDeImoveis;
+    private ArrayList<Propriedade> propriedades;
 
-    public Proprietario(String nome, String email, String senha, int numeroDeImoveis) {
+    public Proprietario(String nome, String email, String senha) {
         super(nome, email, senha);
-        this.numeroDeImoveis = numeroDeImoveis;
+        this.propriedades = new ArrayList<>();
+    }
+
+    public void cadastrarPropriedade(Propriedade p) {
+        propriedades.add(p);
+    }
+
+    public void listarPropriedades() {
+        for (Propriedade p : propriedades) {
+            p.imprimirDados();
+        }
     }
 
     @Override
     public void imprimirDados() {
-        super.imprimirDados();
-        System.out.println("Número de imóveis: " + numeroDeImoveis);
+        System.out.println("Proprietário: " + nome + " - " + email);
     }
-
-    // Getters e Setters
-    public int getNumeroDeImoveis() {
-        return numeroDeImoveis;
-    }
-
-    public void setNumeroDeImoveis(int numeroDeImoveis) {
-        this.numeroDeImoveis = numeroDeImoveis;
-    }
+    // Getters e Setters...
 }
 
-class Locatario extends Usuario {
-    private String documento;
+class Cliente extends Usuario {
+    private ArrayList<Reserva> reservasRealizadas;
 
-    public Locatario(String nome, String email, String senha, String documento) {
+    public Cliente(String nome, String email, String senha) {
         super(nome, email, senha);
-        this.documento = documento;
+        this.reservasRealizadas = new ArrayList<>();
+    }
+
+    public void realizarReserva(Propriedade p, LocalDate checkIn, LocalDate checkOut) {
+        // lógica de reserva
+    }
+
+    public void listarReservas() {
+        for (Reserva r : reservasRealizadas) {
+            r.imprimirReserva();
+        }
     }
 
     @Override
     public void imprimirDados() {
-        super.imprimirDados();
-        System.out.println("Documento: " + documento);
+        System.out.println("Cliente: " + nome + " - " + email);
     }
-
-    // Getters e Setters
-    public String getDocumento() {
-        return documento;
-    }
-
-    public void setDocumento(String documento) {
-        this.documento = documento;
-    }
+    // Getters e Setters...
 }
