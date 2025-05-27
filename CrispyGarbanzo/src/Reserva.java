@@ -1,22 +1,36 @@
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-class Reserva {
+public class Reserva {
     private Propriedade propriedade;
-    private Locatario locatario;
+    private Cliente cliente;
     private LocalDate checkIn;
     private LocalDate checkOut;
     private double custoTotal;
 
+    public Reserva(Propriedade propriedade, Cliente cliente, LocalDate checkIn, LocalDate checkOut) {
+        this.propriedade = propriedade;
+        this.cliente = cliente;
+        this.checkIn = checkIn;
+        this.checkOut = checkOut;
+        this.custoTotal = calcularCustoTotal();
+    }
+
+    public double calcularCustoTotal() {
+        long dias = ChronoUnit.DAYS.between(checkIn, checkOut);
+        return propriedade.calcularPrecoTotal((int) dias);
+    }
+
     public void imprimirReserva() {
         System.out.println("=== Detalhes da Reserva ===");
         System.out.println("Propriedade: " + propriedade.getTitulo());
-        System.out.println("Locatário: " + locatario.nome);
+        System.out.println("Cliente: " + cliente.getNome());
         System.out.println("Check-in: " + checkIn);
         System.out.println("Check-out: " + checkOut);
         System.out.println("Custo Total: R$" + custoTotal);
     }
-    
+
+    // Getters e Setters
     public Propriedade getPropriedade() {
         return propriedade;
     }
@@ -25,12 +39,12 @@ class Reserva {
         this.propriedade = propriedade;
     }
 
-    public Locatario getLocatario() {
-        return locatario;
+    public Cliente getCliente() {
+        return cliente;
     }
 
-    public void setLocatario(Locatario locatario) {
-        this.locatario = locatario;
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 
     public LocalDate getCheckIn() {
