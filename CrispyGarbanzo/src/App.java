@@ -119,7 +119,7 @@ public class App {
         salvarTudo();
     }
 
-    public void cadastrarPropriedade() {
+    public void cadastrarPropriedade(Proprietario proprietario) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("=== Cadastro de Propriedade ===");
         System.out.print("Título: ");
@@ -137,19 +137,6 @@ public class App {
         System.out.println("Tipo (1-Casa, 2-Apartamento, 3-Sítio): ");
         int tipo = scanner.nextInt();
         scanner.nextLine();
-
-        // Seleciona o proprietário (primeiro proprietário da lista)
-        Proprietario proprietario = null;
-        for (Usuario u : usuarios) {
-            if (u instanceof Proprietario) {
-                proprietario = (Proprietario) u;
-                break;
-            }
-        }
-        if (proprietario == null) {
-            System.out.println("Nenhum proprietário cadastrado.");
-            return;
-        }
 
         Propriedade novaPropriedade = null;
         if (tipo == 1) {
@@ -180,9 +167,25 @@ public class App {
         }
     }
 
-    public void menuProprietario() {
+    private Usuario autenticarUsuario() {
         Scanner scanner = new Scanner(System.in);
-        int opcao;
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+        System.out.print("Senha: ");
+        String senha = scanner.nextLine();
+
+        for (Usuario u : usuarios) {
+            if (u.getEmail().equalsIgnoreCase(email) && u.getSenha().equals(senha)) {
+                return u;
+            }
+        }
+        System.out.println("Usuário ou senha inválidos.");
+        return null;
+    }
+
+    public void menuProprietario(Proprietario proprietario) {
+        Scanner scanner = new Scanner(System.in);
+        int opcao = -1;
         do {
             System.out.println("=== Menu Proprietário ===");
             System.out.println("1. Cadastrar Propriedade");
@@ -190,23 +193,23 @@ public class App {
             System.out.println("3. Listar Propriedades Alugadas");
             System.out.println("4. Sair");
             System.out.print("Escolha uma opção: ");
+            while (!scanner.hasNextInt()) {
+                System.out.println("Opção inválida. Digite um número.");
+                scanner.next(); // descarta entrada inválida
+                System.out.print("Escolha uma opção: ");
+            }
             opcao = scanner.nextInt();
             scanner.nextLine();
 
             switch (opcao) {
                 case 1:
-                    cadastrarPropriedade();
+                    cadastrarPropriedade(proprietario);
                     break;
                 case 2:
-                    listarPropriedades();
+                    proprietario.listarPropriedades();
                     break;
                 case 3:
-                    for (Usuario u : usuarios) {
-                        if (u instanceof Proprietario) {
-                            ((Proprietario) u).listarPropriedadesAlugadas(new ArrayList<>(reservas));
-                            break;
-                        }
-                    }
+                    proprietario.listarPropriedadesAlugadas(new ArrayList<>(reservas));
                     break;
                 case 4:
                     System.out.println("Saindo do menu proprietário...");
@@ -217,9 +220,9 @@ public class App {
         } while (opcao != 4);
     }
 
-    public void menuCliente() {
+    public void menuCliente(Cliente cliente) {
         Scanner scanner = new Scanner(System.in);
-        int opcao;
+        int opcao = -1;
         do {
             System.out.println("=== Menu Cliente ===");
             System.out.println("1. Consultar Propriedades Disponíveis");
@@ -227,6 +230,11 @@ public class App {
             System.out.println("3. Listar Reservas");
             System.out.println("4. Sair");
             System.out.print("Escolha uma opção: ");
+            while (!scanner.hasNextInt()) {
+                System.out.println("Opção inválida. Digite um número.");
+                scanner.next(); // descarta entrada inválida
+                System.out.print("Escolha uma opção: ");
+            }
             opcao = scanner.nextInt();
             scanner.nextLine();
 
@@ -235,15 +243,10 @@ public class App {
                     consultarPropriedadesDisponiveis();
                     break;
                 case 2:
-                    alugarPropriedade();
+                    alugarPropriedade(cliente);
                     break;
                 case 3:
-                    for (Usuario u : usuarios) {
-                        if (u instanceof Cliente) {
-                            ((Cliente) u).listarReservas();
-                            break;
-                        }
-                    }
+                    cliente.listarReservas();
                     break;
                 case 4:
                     System.out.println("Saindo do menu cliente...");
@@ -278,7 +281,7 @@ public class App {
         }
     }
 
-    public void alugarPropriedade() {
+    public void alugarPropriedade(Cliente cliente) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Data de check-in (AAAA-MM-DD): ");
         LocalDate checkIn = LocalDate.parse(scanner.nextLine());
@@ -332,19 +335,6 @@ public class App {
             }
         }
 
-        // Seleciona o cliente (primeiro cliente da lista)
-        Cliente cliente = null;
-        for (Usuario u : usuarios) {
-            if (u instanceof Cliente) {
-                cliente = (Cliente) u;
-                break;
-            }
-        }
-        if (cliente == null) {
-            System.out.println("Nenhum cliente cadastrado.");
-            return;
-        }
-
         Reserva novaReserva = new Reserva(propriedadeEscolhida, cliente, checkIn, checkOut);
         reservas.add(novaReserva);
         reservaDAO.salvar(novaReserva);
@@ -373,12 +363,24 @@ public class App {
             scanner.nextLine();
 
             switch (opcao) {
-                case 1:
-                    app.menuProprietario();
+                case 1: {
+                    Usuario usuario = app.autenticarUsuario();
+                    if (usuario instanceof Proprietario) {
+                        app.menuProprietario((Proprietario) usuario);
+                    } else {
+                        System.out.println("Acesso negado. Não é um proprietário.");
+                    }
                     break;
-                case 2:
-                    app.menuCliente();
+                }
+                case 2: {
+                    Usuario usuario = app.autenticarUsuario();
+                    if (usuario instanceof Cliente) {
+                        app.menuCliente((Cliente) usuario);
+                    } else {
+                        System.out.println("Acesso negado. Não é um cliente.");
+                    }
                     break;
+                }
                 case 3:
                     app.cadastrarUsuario();
                     break;
