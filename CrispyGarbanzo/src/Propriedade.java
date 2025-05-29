@@ -1,4 +1,6 @@
-public abstract class Propriedade {
+import java.io.Serializable;
+
+public abstract class Propriedade implements Serializable {
     private boolean disponivel;
     private String titulo;
     private String descricao;
@@ -18,61 +20,20 @@ public abstract class Propriedade {
         this.proprietario = proprietario;
     }
 
-    public boolean verificarDisponibilidade() {
-        return disponivel;
-    }
-
-    public void setDisponivel(boolean disponivel) {
-        this.disponivel = disponivel;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public String getLocalizacao() {
-        return localizacao;
-    }
-
-    public void setLocalizacao(String localizacao) {
-        this.localizacao = localizacao;
-    }
-
-    public int getCapacidade() {
-        return capacidade;
-    }
-
-    public void setCapacidade(int capacidade) {
-        this.capacidade = capacidade;
-    }
-
-    public double getPrecoPorNoite() {
-        return precoPorNoite;
-    }
-
-    public void setPrecoPorNoite(double precoPorNoite) {
-        this.precoPorNoite = precoPorNoite;
-    }
-
-    public Proprietario getProprietario() {
-        return proprietario;
-    }
-
-    public void setProprietario(Proprietario proprietario) {
-        this.proprietario = proprietario;
-    }
+    public boolean verificarDisponibilidade() { return disponivel; }
+    public void setDisponivel(boolean disponivel) { this.disponivel = disponivel; }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public String getLocalizacao() { return localizacao; }
+    public void setLocalizacao(String localizacao) { this.localizacao = localizacao; }
+    public int getCapacidade() { return capacidade; }
+    public void setCapacidade(int capacidade) { this.capacidade = capacidade; }
+    public double getPrecoPorNoite() { return precoPorNoite; }
+    public void setPrecoPorNoite(double precoPorNoite) { this.precoPorNoite = precoPorNoite; }
+    public Proprietario getProprietario() { return proprietario; }
+    public void setProprietario(Proprietario proprietario) { this.proprietario = proprietario; }
 
     public abstract void imprimirDados();
     public abstract double calcularPrecoTotal(int dias);

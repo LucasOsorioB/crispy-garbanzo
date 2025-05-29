@@ -1,14 +1,11 @@
 public class DAOFactory {
     public static UsuarioDAO getUsuarioDAO() {
-        return new UsuarioBancoDAO();
+        return new UsuarioArquivoDAO();
     }
     public static PropriedadeDAO getPropriedadeDAO() {
-        return new PropriedadeBancoDAO();
+        return new PropriedadeArquivoDAO();
     }
     public static ReservaDAO getReservaDAO() {
-        // Implemente ReservaBancoDAO semelhante ao UsuarioBancoDAO
-        return new ReservaBancoDAO();
+        return new ReservaArquivoDAO();
     }
 }
-
-// Remove PropriedadeBancoDAO from this file. It will be moved to its own file.

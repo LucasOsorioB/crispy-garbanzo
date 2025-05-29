@@ -1,14 +1,10 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class App {
-    
+
     private UsuarioDAO usuarioDAO = DAOFactory.getUsuarioDAO();
     private PropriedadeDAO propriedadeDAO = DAOFactory.getPropriedadeDAO();
     private ReservaDAO reservaDAO = DAOFactory.getReservaDAO();
@@ -18,20 +14,67 @@ public class App {
     private List<Reserva> reservas;
 
     public App() {
-        this.usuarios = new ArrayList<>();
-        this.propriedades = new ArrayList<>();
-        this.reservas = new ArrayList<>();
+        // Carrega dados dos arquivos
+        this.usuarios = usuarioDAO.listar();
+        this.propriedades = propriedadeDAO.listar();
+        this.reservas = reservaDAO.listar();
 
-        // Dados iniciais (exemplo)
-        Proprietario proprietario1 = new Proprietario("Carlos", "carlos@email.com", "senha123");
-        Cliente cliente1 = new Cliente("Ana", "ana@email.com", "segredo");
-        usuarios.add(proprietario1);
-        usuarios.add(cliente1);
+        // Se não houver dados, cria alguns exemplos
+        if (usuarios.isEmpty() && propriedades.isEmpty()) {
+            Proprietario proprietario1 = new Proprietario("Carlos", "carlos@email.com", "senha123");
+            Cliente cliente1 = new Cliente("Ana", "ana@email.com", "segredo");
+            usuarios.add(proprietario1);
+            usuarios.add(cliente1);
 
-        // Propriedades iniciais
-        propriedades.add(new Casa(true, "Casa de Praia", "Casa com piscina", "Guarujá", 8, 500.0, proprietario1, true, 1.2));
-        propriedades.add(new Apartamento(true, "Apto Centro", "Apto moderno", "São Paulo", 4, 300.0, proprietario1, 10, 50.0));
-        propriedades.add(new Sitio(true, "Sítio Verde", "Sítio amplo", "Interior", 15, 800.0, proprietario1, 5.0));
+            Casa casa = new Casa(true, "Casa de Praia", "Casa com piscina", "Guarujá", 8, 500.0, proprietario1, true, 1.2);
+            Apartamento apto = new Apartamento(true, "Apto Centro", "Apto moderno", "São Paulo", 4, 300.0, proprietario1, 10, 50.0);
+            Sitio sitio = new Sitio(true, "Sítio Verde", "Sítio amplo", "Interior", 15, 800.0, proprietario1, 5.0);
+
+            propriedades.add(casa);
+            propriedades.add(apto);
+            propriedades.add(sitio);
+
+            proprietario1.cadastrarPropriedade(casa);
+            proprietario1.cadastrarPropriedade(apto);
+            proprietario1.cadastrarPropriedade(sitio);
+
+            usuarioDAO.salvar(proprietario1);
+            usuarioDAO.salvar(cliente1);
+            propriedadeDAO.salvar(casa);
+            propriedadeDAO.salvar(apto);
+            propriedadeDAO.salvar(sitio);
+        }
+    }
+
+    private void salvarTudo() {
+        // Salva usuários
+        List<String> linhasUsuarios = new ArrayList<>();
+        for (Usuario u : usuarios) {
+            String tipo = u instanceof Proprietario ? "Proprietario" : "Cliente";
+            StringBuilder sb = new StringBuilder();
+            sb.append(tipo).append(";");
+            sb.append(u.getNome()).append(";");
+            sb.append(u.getEmail()).append(";");
+            sb.append(u.getSenha());
+            linhasUsuarios.add(sb.toString());
+        }
+        ArquivoUtil.salvarLinhas(linhasUsuarios, "usuarios.csv");
+
+        // Salva propriedades (já está implementado na PropriedadeArquivoDAO)
+        ((PropriedadeArquivoDAO) propriedadeDAO).salvarTodas(propriedades);
+
+        // Salva reservas
+        List<String> linhasReservas = new ArrayList<>();
+        for (Reserva r : reservas) {
+            linhasReservas.add(
+                r.getPropriedade().getTitulo() + ";" +
+                r.getCliente().getEmail() + ";" +
+                r.getCheckIn() + ";" +
+                r.getCheckOut() + ";" +
+                r.getCustoTotal()
+            );
+        }
+        ArquivoUtil.salvarLinhas(linhasReservas, "reservas.csv");
     }
 
     public void listarUsuarios() {
@@ -63,13 +106,17 @@ public class App {
         int tipo = scanner.nextInt();
         scanner.nextLine();
 
+        Usuario novoUsuario;
         if (tipo == 1) {
-            usuarios.add(new Proprietario(nome, email, senha));
+            novoUsuario = new Proprietario(nome, email, senha);
             System.out.println("Proprietário cadastrado com sucesso!");
         } else {
-            usuarios.add(new Cliente(nome, email, senha));
+            novoUsuario = new Cliente(nome, email, senha);
             System.out.println("Cliente cadastrado com sucesso!");
         }
+        usuarios.add(novoUsuario);
+        usuarioDAO.salvar(novoUsuario);
+        salvarTudo();
     }
 
     public void cadastrarPropriedade() {
@@ -91,7 +138,7 @@ public class App {
         int tipo = scanner.nextInt();
         scanner.nextLine();
 
-        // Seleciona o proprietário (simples: primeiro proprietário da lista)
+        // Seleciona o proprietário (primeiro proprietário da lista)
         Proprietario proprietario = null;
         for (Usuario u : usuarios) {
             if (u instanceof Proprietario) {
@@ -126,6 +173,9 @@ public class App {
         if (novaPropriedade != null) {
             propriedades.add(novaPropriedade);
             proprietario.cadastrarPropriedade(novaPropriedade);
+            propriedadeDAO.salvar(novaPropriedade);
+            usuarioDAO.salvar(proprietario);
+            salvarTudo();
             System.out.println("Propriedade cadastrada com sucesso!");
         }
     }
@@ -151,7 +201,6 @@ public class App {
                     listarPropriedades();
                     break;
                 case 3:
-                    // Exemplo: listar propriedades alugadas do primeiro proprietário
                     for (Usuario u : usuarios) {
                         if (u instanceof Proprietario) {
                             ((Proprietario) u).listarPropriedadesAlugadas(new ArrayList<>(reservas));
@@ -189,7 +238,6 @@ public class App {
                     alugarPropriedade();
                     break;
                 case 3:
-                    // Exemplo: listar reservas do primeiro cliente
                     for (Usuario u : usuarios) {
                         if (u instanceof Cliente) {
                             ((Cliente) u).listarReservas();
@@ -275,7 +323,16 @@ public class App {
             return;
         }
 
-        // Seleciona o cliente (simples: primeiro cliente da lista)
+        // Checa se já existe reserva para essa propriedade e datas
+        for (Reserva reserva : reservas) {
+            if (reserva.getPropriedade().equals(propriedadeEscolhida) &&
+                (checkIn.isBefore(reserva.getCheckOut()) && checkOut.isAfter(reserva.getCheckIn()))) {
+                System.out.println("Já existe uma reserva para essa propriedade nesse período!");
+                return;
+            }
+        }
+
+        // Seleciona o cliente (primeiro cliente da lista)
         Cliente cliente = null;
         for (Usuario u : usuarios) {
             if (u instanceof Cliente) {
@@ -290,57 +347,16 @@ public class App {
 
         Reserva novaReserva = new Reserva(propriedadeEscolhida, cliente, checkIn, checkOut);
         reservas.add(novaReserva);
+        reservaDAO.salvar(novaReserva);
         cliente.realizarReserva(propriedadeEscolhida, checkIn, checkOut);
+        usuarioDAO.salvar(cliente);
+        salvarTudo();
 
         System.out.println("Reserva realizada com sucesso!");
         System.out.println("Custo total da reserva: R$ " + novaReserva.getCustoTotal());
     }
 
-    public static void criarBancoETabelas() {
-        String url = "jdbc:postgresql://aws-0-us-east-2.pooler.supabase.com:6543/postgres?user=postgres.moojvwojczvwtajvxteg&password=BANCODEDADOS1";
-        try (Connection conn = DriverManager.getConnection(url)) {
-            Statement stmt = conn.createStatement();
-            // Tabela de usuários
-            stmt.execute("""
-                CREATE TABLE IF NOT EXISTS usuarios (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nome TEXT,
-                    email TEXT UNIQUE,
-                    senha TEXT,
-                    tipo TEXT
-                );
-            """);
-            // Tabela de propriedades
-            stmt.execute("""
-                CREATE TABLE IF NOT EXISTS propriedades (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    titulo TEXT,
-                    descricao TEXT,
-                    localizacao TEXT,
-                    capacidade INTEGER,
-                    precoPorNoite REAL,
-                    disponivel BOOLEAN,
-                    proprietario_email TEXT
-                );
-            """);
-            // Tabela de reservas
-            stmt.execute("""
-                CREATE TABLE IF NOT EXISTS reservas (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    propriedade_id INTEGER,
-                    cliente_email TEXT,
-                    checkIn TEXT,
-                    checkOut TEXT,
-                    custoTotal REAL
-                );
-            """);
-            System.out.println("Banco e tabelas criados/verificados com sucesso!");
-        } catch (SQLException e) {
-            System.out.println("Erro ao criar banco/tabelas: " + e.getMessage());
-        }
-    }
-
-    public static void main(String[] args) { // Cria o banco e as tabelas antes de iniciar o app
+    public static void main(String[] args) {
         App app = new App();
         Scanner scanner = new Scanner(System.in);
         int opcao;
@@ -373,6 +389,7 @@ public class App {
                     app.listarPropriedades();
                     break;
                 case 6:
+                    app.salvarTudo();
                     System.out.println("Saindo do sistema...");
                     break;
                 default:
